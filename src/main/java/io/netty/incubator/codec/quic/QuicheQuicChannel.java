@@ -117,6 +117,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
     private QuicConnectionAddress connectAddress;
     private ByteBuffer key;
     private CloseData closeData;
+    private QuicConnectionCloseEvent connectionCloseEvent;
     private QuicConnectionStats statsAtClose;
     private InetSocketAddress remote;
     private boolean supportsDatagram;
@@ -315,6 +316,14 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
         return true;
     }
 
+    private void failPendingConnectPromise() {
+        ChannelPromise promise = QuicheQuicChannel.this.connectPromise;
+        if (promise != null) {
+            QuicheQuicChannel.this.connectPromise = null;
+            promise.tryFailure(new QuicClosedChannelException(this.connectionCloseEvent));
+        }
+    }
+
     void forceClose() {
         if (isConnDestroyed()) {
             // Just return if we already destroyed the underlying connection.
@@ -326,11 +335,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
         statsAtClose = collectStats0(eventLoop().newPromise());
         QuicheQuicConnection conn = connection;
         try {
-            ChannelPromise promise = QuicheQuicChannel.this.connectPromise;
-            if (promise != null) {
-                QuicheQuicChannel.this.connectPromise = null;
-                promise.tryFailure(new ClosedChannelException());
-            }
+            failPendingConnectPromise();
             connection = null;
             state = CLOSED;
 
@@ -476,11 +481,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
         // Call connectionSend() so we ensure we send all that is queued before we close the channel
         boolean written = connectionSend();
 
-        if (connectPromise != null) {
-            ChannelPromise promise = connectPromise;
-            this.connectPromise = null;
-            promise.tryFailure(new ClosedChannelException());
-        }
+        failPendingConnectPromise();
         Quiche.throwIfError(Quiche.quiche_conn_close(connectionAddressChecked(), app, err,
                 Quiche.memoryAddress(reason) + reason.readerIndex(), reason.readableBytes()));
 
@@ -1153,6 +1154,15 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
             channelPromise.setFailure(new UnsupportedOperationException());
         }
 
+        private void fireConnectCloseEventIfNeeded(long connAddr) {
+            if (connectionCloseEvent == null) {
+                connectionCloseEvent = Quiche.quiche_conn_peer_error(connAddr);
+                if (connectionCloseEvent != null) {
+                    pipeline().fireUserEventTriggered(connectionCloseEvent);
+                }
+            }
+        }
+
         void connectionRecv(InetSocketAddress sender, ByteBuf buffer) {
             if (isConnDestroyed()) {
                 return;
@@ -1210,6 +1220,8 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                             // Connection was closed right away.
                             return;
                         }
+
+                        fireConnectCloseEventIfNeeded(connAddr);
 
                         if (Quiche.quiche_conn_is_established(connAddr) ||
                                 Quiche.quiche_conn_is_in_early_data(connAddr)) {
@@ -1385,6 +1397,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                 pipeline().fireChannelActive();
                 fireDatagramExtensionEvent();
                 if (!promiseSet) {
+                    fireConnectCloseEventIfNeeded(connAddr);
                     this.close(this.voidPromise());
                     return true;
                 }

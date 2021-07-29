@@ -488,15 +488,31 @@ public class QuicChannelConnectTest extends AbstractQuicTest {
         InetSocketAddress address = (InetSocketAddress) server.localAddress();
         Channel channel = QuicTestUtils.newClient(QuicTestUtils.newQuicClientBuilder(QuicSslContextBuilder.forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE).applicationProtocols("protocol").build()));
+        AtomicReference<QuicConnectionCloseEvent> closeEventRef = new AtomicReference<>();
         try {
             Throwable cause = QuicChannel.newBootstrap(channel)
-                    .handler(new ChannelInboundHandlerAdapter())
+                    .handler(new ChannelInboundHandlerAdapter() {
+                        @Override
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+                            if (evt instanceof QuicConnectionCloseEvent) {
+                                closeEventRef.set((QuicConnectionCloseEvent) evt);
+                            }
+                            super.userEventTriggered(ctx, evt);
+                        }
+                    })
                     .streamHandler(new ChannelInboundHandlerAdapter())
                     .remoteAddress(address)
                     .connect()
                     .await().cause();
-            assertThat(cause, Matchers.instanceOf(ClosedChannelException.class));
+            assertThat(cause, Matchers.instanceOf(QuicClosedChannelException.class));
             latch.await();
+            QuicConnectionCloseEvent closeEvent = closeEventRef.get();
+            assertNotNull(closeEvent);
+            assertTrue(closeEvent.isTlsError());
+            // 120 is the ALPN error.
+            // See https://datatracker.ietf.org/doc/html/rfc8446#section-6
+            assertEquals(120, QuicConnectionCloseEvent.extractTlsError(closeEvent.error()));
+            assertEquals(closeEvent, ((QuicClosedChannelException) cause).event());
         } finally {
             server.close().sync();
             // Close the parent Datagram channel as well.
