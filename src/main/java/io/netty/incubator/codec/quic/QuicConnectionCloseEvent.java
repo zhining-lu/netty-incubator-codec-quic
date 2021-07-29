@@ -61,7 +61,7 @@ public final class QuicConnectionCloseEvent implements QuicEvent {
     }
 
     /**
-     * Return the reason for the close.
+     * Return the reason for the close, which may be empty.
      *
      * @return  the reason.
      */
