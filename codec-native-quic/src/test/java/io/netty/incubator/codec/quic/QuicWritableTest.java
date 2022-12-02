@@ -60,7 +60,10 @@ public class QuicWritableTest extends AbstractQuicTest {
         final AtomicReference<Throwable> clientErrorRef = new AtomicReference<>();
         QuicChannelValidationHandler serverHandler = new QuicChannelValidationHandler();
         Channel server = QuicTestUtils.newServer(
-                QuicTestUtils.newQuicServerBuilder(executor).initialMaxStreamsBidirectional(5000),
+                QuicTestUtils.newQuicServerBuilder(executor).initialMaxStreamsBidirectional(5000)
+                        .initialMaxStreamDataBidirectionalRemote(bufferSize / 4)
+                        .initialMaxStreamDataBidirectionalLocal(bufferSize / 4)
+                        .maxIdleTimeout(30, TimeUnit.SECONDS),
                 InsecureQuicTokenHandler.INSTANCE,
                 serverHandler, new ChannelInboundHandlerAdapter() {
 
@@ -84,7 +87,8 @@ public class QuicWritableTest extends AbstractQuicTest {
                 });
         InetSocketAddress address = (InetSocketAddress) server.localAddress();
         Channel channel = QuicTestUtils.newClient(QuicTestUtils.newQuicClientBuilder(executor)
-                .initialMaxStreamDataBidirectionalLocal(bufferSize / 4));
+                .initialMaxStreamDataBidirectionalLocal(bufferSize / 4)
+                .maxIdleTimeout(30, TimeUnit.SECONDS));
 
         QuicChannelValidationHandler clientHandler = new QuicChannelValidationHandler();
         try {
