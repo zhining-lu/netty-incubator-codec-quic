@@ -54,6 +54,7 @@ public class QuicWritableTest extends AbstractQuicTest {
     }
 
     private static void testCorrectlyHandleWritability(Executor executor, boolean readInComplete) throws Throwable  {
+        System.out.println("testCorrectlyHandleWritability start...time: " + System.currentTimeMillis());
         int bufferSize = 64 * 1024;
         Promise<Void> writePromise = ImmediateEventExecutor.INSTANCE.newPromise();
         final AtomicReference<Throwable> serverErrorRef = new AtomicReference<>();
@@ -153,7 +154,7 @@ public class QuicWritableTest extends AbstractQuicTest {
             writePromise.sync();
             stream.closeFuture().sync();
             quicChannel.close().sync();
-
+            System.out.println("testCorrectlyHandleWritability quicChannel.close() time:" + System.currentTimeMillis());
             throwIfNotNull(serverErrorRef);
             throwIfNotNull(clientErrorRef);
 
@@ -163,6 +164,7 @@ public class QuicWritableTest extends AbstractQuicTest {
             server.close().sync();
             // Close the parent Datagram channel as well.
             channel.close().sync();
+            System.out.println("testCorrectlyHandleWritability end time:" + System.currentTimeMillis());
         }
     }
 
