@@ -90,6 +90,7 @@ public class QuicWritableTest extends AbstractQuicTest {
         InetSocketAddress address = (InetSocketAddress) server.localAddress();
         Channel channel = QuicTestUtils.newClient(QuicTestUtils.newQuicClientBuilder(executor)
                 .initialMaxStreamDataBidirectionalLocal(bufferSize / 4)
+                .initialMaxData(bufferSize / 4)
                 .maxIdleTimeout(30, TimeUnit.SECONDS));
 
         QuicChannelValidationHandler clientHandler = new QuicChannelValidationHandler();
