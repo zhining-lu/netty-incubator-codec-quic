@@ -135,6 +135,7 @@ public class QuicWritableTest extends AbstractQuicTest {
                         public void channelReadComplete(ChannelHandlerContext ctx) {
                             if (readInComplete) {
                                 ctx.read();
+                                System.out.println("channelReadComplete bytes=" + bytes);
                             }
                         }
 
