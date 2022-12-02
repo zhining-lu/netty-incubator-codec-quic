@@ -62,6 +62,7 @@ public class QuicWritableTest extends AbstractQuicTest {
         QuicChannelValidationHandler serverHandler = new QuicChannelValidationHandler();
         Channel server = QuicTestUtils.newServer(
                 QuicTestUtils.newQuicServerBuilder(executor).initialMaxStreamsBidirectional(5000)
+                        .initialMaxData(bufferSize / 4)
                         .initialMaxStreamDataBidirectionalRemote(bufferSize / 4)
                         .initialMaxStreamDataBidirectionalLocal(bufferSize / 4)
                         .maxIdleTimeout(30, TimeUnit.SECONDS),
