@@ -20,6 +20,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.RecvByteBufAllocator;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseNotifier;
@@ -116,7 +117,7 @@ public class QuicWritableTest extends AbstractQuicTest {
                         }
 
                         @Override
-                        public void channelRead(ChannelHandlerContext ctx, Object msg) {
+                        public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
                             System.out.println("channelRead "+ctx.channel().id()+ " bytes=" + bytes + "time: " + System.currentTimeMillis());
                             if (bytes == 0) {
                                 // First read
@@ -132,14 +133,34 @@ public class QuicWritableTest extends AbstractQuicTest {
 
                             if (!readInComplete) {
                                 ctx.read();
+                                RecvByteBufAllocator.Handle allocHandle = ctx.channel().unsafe().recvBufAllocHandle();
+                                // Loop until bytes are read
+                                while(true){
+                                    if(allocHandle.lastBytesRead() <= 0){
+                                        Thread.sleep(10);
+                                        ctx.read();
+                                    }else{
+                                        break;
+                                    }
+                                }
                             }
                         }
 
                         @Override
-                        public void channelReadComplete(ChannelHandlerContext ctx) {
+                        public void channelReadComplete(ChannelHandlerContext ctx) throws InterruptedException {
                             System.out.println("channelReadComplete "+ctx.channel().id()+ " bytes=" + bytes + "time: " + System.currentTimeMillis());
                             if (readInComplete) {
                                 ctx.read();
+                                RecvByteBufAllocator.Handle allocHandle = ctx.channel().unsafe().recvBufAllocHandle();
+                                // Loop until bytes are read
+                                while(true){
+                                    if(allocHandle.lastBytesRead() <= 0){
+                                        Thread.sleep(10);
+                                        ctx.read();
+                                    }else{
+                                        break;
+                                    }
+                                }
                             }
                         }
 
