@@ -601,9 +601,9 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
             assert eventLoop().inEventLoop();
             System.err.println("beginRead readable="+readable);
             readPending = true;
-//            if (readable) {
+            if (readable) {
                 ((QuicStreamChannelUnsafe) unsafe()).recv();
-//            }
+            }
         }
 
         private void closeIfNeeded(boolean wasFinSent) {
@@ -860,6 +860,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                     try {
                         while (!finReceived && continueReading) {
                             byteBuf = allocHandle.allocate(allocator);
+                            System.out.println("before switch id:" + id());
                             switch (parent.streamRecv(streamId(), byteBuf)) {
                                 case DONE:
                                     // Nothing left to read;
@@ -877,6 +878,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                                 default:
                                     throw new Error();
                             }
+                            System.out.println("alter switch id:" + id());
                             allocHandle.lastBytesRead(byteBuf.readableBytes());
                             if (allocHandle.lastBytesRead() <= 0) {
                                 byteBuf.release();
