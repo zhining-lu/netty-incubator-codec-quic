@@ -137,6 +137,7 @@ public class QuicWritableTest extends AbstractQuicTest {
                                 // Loop until bytes are read
                                 while(true){
                                     if(allocHandle.lastBytesRead() <= 0){
+                                        System.out.println("===================channelReadComplete "+ctx.channel().id()+ " lastBytesRead=" + allocHandle.lastBytesRead() );
                                         Thread.sleep(10);
                                         ctx.read();
                                     }else{
@@ -155,6 +156,7 @@ public class QuicWritableTest extends AbstractQuicTest {
                                 // Loop until bytes are read
                                 while(true){
                                     if(allocHandle.lastBytesRead() <= 0){
+                                        System.out.println("====================channelReadComplete "+ctx.channel().id()+ " lastBytesRead=" + allocHandle.lastBytesRead() );
                                         Thread.sleep(10);
                                         ctx.read();
                                     }else{
