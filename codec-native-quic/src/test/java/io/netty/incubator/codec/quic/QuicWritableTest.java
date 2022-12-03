@@ -136,8 +136,8 @@ public class QuicWritableTest extends AbstractQuicTest {
                                 RecvByteBufAllocator.Handle allocHandle = ctx.channel().unsafe().recvBufAllocHandle();
                                 // Loop until bytes are read
                                 while(true){
+                                    System.out.println("===================channelReadComplete "+ctx.channel().id()+ " lastBytesRead=" + allocHandle.lastBytesRead() );
                                     if(allocHandle.lastBytesRead() <= 0){
-                                        System.out.println("===================channelReadComplete "+ctx.channel().id()+ " lastBytesRead=" + allocHandle.lastBytesRead() );
                                         Thread.sleep(10);
                                         ctx.read();
                                     }else{
@@ -155,8 +155,8 @@ public class QuicWritableTest extends AbstractQuicTest {
                                 RecvByteBufAllocator.Handle allocHandle = ctx.channel().unsafe().recvBufAllocHandle();
                                 // Loop until bytes are read
                                 while(true){
+                                    System.out.println("====================channelReadComplete "+ctx.channel().id()+ " lastBytesRead=" + allocHandle.lastBytesRead() );
                                     if(allocHandle.lastBytesRead() <= 0){
-                                        System.out.println("====================channelReadComplete "+ctx.channel().id()+ " lastBytesRead=" + allocHandle.lastBytesRead() );
                                         Thread.sleep(10);
                                         ctx.read();
                                     }else{
