@@ -415,6 +415,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
     void readable() {
         assert eventLoop().inEventLoop();
         // Mark as readable and if a read is pending execute it.
+        System.err.println("readable");
         readable = true;
         if (readPending) {
             ((QuicStreamChannelUnsafe) unsafe()).recv();
@@ -598,6 +599,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
         @Override
         public void beginRead() {
             assert eventLoop().inEventLoop();
+            System.err.println("beginRead");
             readPending = true;
             if (readable) {
                 ((QuicStreamChannelUnsafe) unsafe()).recv();
@@ -832,7 +834,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                 // be possible that we re-enter this method while still processing it.
                 return;
             }
-
+            System.err.println("recv2");
             inRecv = true;
             try {
                 ChannelPipeline pipeline = pipeline();
