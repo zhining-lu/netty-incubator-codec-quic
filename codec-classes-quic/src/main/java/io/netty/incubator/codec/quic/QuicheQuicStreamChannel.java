@@ -601,9 +601,9 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
             assert eventLoop().inEventLoop();
             System.err.println("beginRead readable="+readable);
             readPending = true;
-            if (readable) {
+//            if (readable) {
                 ((QuicStreamChannelUnsafe) unsafe()).recv();
-            }
+//            }
         }
 
         private void closeIfNeeded(boolean wasFinSent) {
