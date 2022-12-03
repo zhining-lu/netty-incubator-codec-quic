@@ -137,7 +137,7 @@ public class QuicWritableTest extends AbstractQuicTest {
 
                         @Override
                         public void channelReadComplete(ChannelHandlerContext ctx) {
-//                            System.out.println("channelReadComplete "+ctx.channel().id()+ " bytes=" + bytes + "time: " + System.currentTimeMillis());
+                            System.out.println("channelReadComplete "+ctx.channel().id()+ " bytes=" + bytes + "time: " + System.currentTimeMillis());
                             if (readInComplete) {
                                 ctx.read();
                             }
