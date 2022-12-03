@@ -834,7 +834,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                 // be possible that we re-enter this method while still processing it.
                 return;
             }
-            System.err.println("recv2");
+            System.err.println("recv2 id:" + id());
             inRecv = true;
             try {
                 ChannelPipeline pipeline = pipeline();
@@ -922,6 +922,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                 // About to leave the method lets reset so we can enter it again.
                 inRecv = false;
                 removeStreamFromParent();
+                System.err.println("recv2 end id:"+ id());
             }
         }
 
