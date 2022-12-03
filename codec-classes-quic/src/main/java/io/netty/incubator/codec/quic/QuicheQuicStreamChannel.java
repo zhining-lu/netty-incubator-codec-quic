@@ -415,7 +415,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
     void readable() {
         assert eventLoop().inEventLoop();
         // Mark as readable and if a read is pending execute it.
-        System.err.println("readable");
+        System.out.println("readable readPending="+ readPending);
         readable = true;
         if (readPending) {
             ((QuicStreamChannelUnsafe) unsafe()).recv();
@@ -599,7 +599,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
         @Override
         public void beginRead() {
             assert eventLoop().inEventLoop();
-            System.err.println("beginRead readable="+readable);
+            System.out.println("beginRead readable="+readable);
             readPending = true;
             if (readable) {
                 ((QuicStreamChannelUnsafe) unsafe()).recv();
@@ -834,7 +834,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                 // be possible that we re-enter this method while still processing it.
                 return;
             }
-            System.err.println("recv2 id:" + id());
+            System.out.println("recv2 id:" + id());
             inRecv = true;
             try {
                 ChannelPipeline pipeline = pipeline();
@@ -878,7 +878,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                                 default:
                                     throw new Error();
                             }
-                            System.out.println("alter switch id:" + id());
+                            System.out.println("alter switch id:" + id() + "readable=" + readable);
                             allocHandle.lastBytesRead(byteBuf.readableBytes());
                             if (allocHandle.lastBytesRead() <= 0) {
                                 byteBuf.release();
@@ -907,7 +907,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                             byteBuf = null;
                             continueReading = allocHandle.continueReading();
                         }
-
+                        System.out.println("while end id:" + id());
                         if (readCompleteNeeded) {
                             readComplete(allocHandle, pipeline);
                         }
@@ -924,7 +924,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                 // About to leave the method lets reset so we can enter it again.
                 inRecv = false;
                 removeStreamFromParent();
-                System.err.println("recv2 end id:"+ id());
+                System.out.println("recv2 end id:"+ id());
             }
         }
 
