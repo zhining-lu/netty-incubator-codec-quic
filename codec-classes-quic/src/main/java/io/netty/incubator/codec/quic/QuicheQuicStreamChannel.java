@@ -599,7 +599,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
         @Override
         public void beginRead() {
             assert eventLoop().inEventLoop();
-            System.err.println("beginRead");
+            System.err.println("beginRead readable="+readable);
             readPending = true;
             if (readable) {
                 ((QuicStreamChannelUnsafe) unsafe()).recv();
