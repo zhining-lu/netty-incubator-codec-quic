@@ -882,6 +882,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                             allocHandle.lastBytesRead(byteBuf.readableBytes());
                             if (allocHandle.lastBytesRead() <= 0) {
                                 byteBuf.release();
+                                System.out.println("lastBytesRead finReceived=" + finReceived +" readFrames=" + readFrames);
                                 if (finReceived && readFrames) {
                                     // If we read QuicStreamFrames we should fire an frame through the pipeline
                                     // with an empty buffer but the fin flag set to true.
