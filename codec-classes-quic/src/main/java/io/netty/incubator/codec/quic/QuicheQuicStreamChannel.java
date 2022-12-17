@@ -849,6 +849,7 @@ final class QuicheQuicStreamChannel extends DefaultAttributeMap implements QuicS
                 // We should loop as long as a read() was requested and there is anything left to read, which means the
                 // stream was marked as readable before.
                 while (active && readPending && readable) {
+                    System.out.println("while loop id:" + id());
                     allocHandle.reset(config);
                     ByteBuf byteBuf = null;
                     QuicheQuicChannel parent = parent();
