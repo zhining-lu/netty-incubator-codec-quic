@@ -118,6 +118,7 @@ public class QuicWritableTest extends AbstractQuicTest {
 
                         @Override
                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+                            Thread.sleep(10);
                             System.out.println("channelRead "+ctx.channel().id()+ " bytes=" + bytes + "time: " + System.currentTimeMillis());
                             if (bytes == 0) {
                                 // First read
