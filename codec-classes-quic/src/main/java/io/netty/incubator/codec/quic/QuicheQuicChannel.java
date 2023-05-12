@@ -545,7 +545,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
 
     @Override
     protected boolean isCompatible(EventLoop eventLoop) {
-        return eventLoop instanceof NioEventLoop;
+        return parent().eventLoop().getClass().isInstance(eventLoop);
     }
 
     @Override
